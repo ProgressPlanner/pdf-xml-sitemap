@@ -63,6 +63,7 @@ class JoostBlog_PDF_Sitemap {
 
 		add_filter( 'wpseo_sitemap_index_links', [ $this, 'add_index_link' ] );
 		add_filter( 'wp_generate_attachment_metadata', [ $this, 'maybe_clear_cache' ], 10, 2 );
+		add_filter( 'post_mime_types', [ $this, 'filter_post_mime_types' ] );
 	}
 
 	/**
@@ -80,6 +81,30 @@ class JoostBlog_PDF_Sitemap {
 		}
 
 		return $metadata;
+	}
+
+	/**
+	 * Adds the PDF post mime type.
+	 *
+	 * @param string[] $post_mime_types The existing post mime types.
+	 *
+	 * @return string[] The existing post mime types.
+	 */
+	public function filter_post_mime_types( $post_mime_types ) {
+		$post_mime_types['application/pdf'] = [
+			'PDFs',
+			'Manage PDFs',
+			[
+				'0' => 'PDF (%s)',
+				'1' => 'PDFs (%s)',
+				'singular' => 'PDF (%s)',
+				'plural' => 'PDFs (%s)',
+				'context' => '',
+				'domain' => '',
+			],
+		];
+
+		return $post_mime_types;
 	}
 
 	/**
