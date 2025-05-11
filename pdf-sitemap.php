@@ -25,16 +25,22 @@ class JoostBlog_PDF_Sitemap {
 
 	/**
 	 * Array of filetypes we're adding to the XML sitemap.
+	 *
+	 * @var string[]
 	 */
 	private array $filetypes = [ 'pdf' ];
 
 	/**
 	 * Holds the newest last_mod date we can find.
+	 *
+	 * @var string
 	 */
 	private string $last_mod = '';
 
 	/**
 	 * Holds the PDFs we're going to output.
+	 *
+	 * @var array<string, string>
 	 */
 	private array $pdfs = [];
 
@@ -51,7 +57,7 @@ class JoostBlog_PDF_Sitemap {
 	 * Registers the hooks for our little plugin.
 	 */
 	public function register_hooks(): void {
-		if ( isset( $GLOBALS['wpseo_sitemaps'] ) && is_object( $GLOBALS['wpseo_sitemaps'] ) && method_exists( 'WPSEO_Sitemaps', 'register_sitemap' ) ) {
+		if ( isset( $GLOBALS['wpseo_sitemaps'] ) && is_a( $GLOBALS['wpseo_sitemaps'], 'WPSEO_Sitemaps' ) && method_exists( 'WPSEO_Sitemaps', 'register_sitemap' ) ) {
 			$GLOBALS['wpseo_sitemaps']->register_sitemap( 'pdf_files', [ $this, 'build_sitemap' ] );
 		}
 
@@ -62,10 +68,10 @@ class JoostBlog_PDF_Sitemap {
 	/**
 	 * Makes sure we clear the PDF sitemap cache when a new PDF is uploaded.
 	 *
-	 * @param array $metadata      Attachment metadata. Unused.
-	 * @param int   $attachment_id The attachment that was created.
+	 * @param string[] $metadata      Attachment metadata. Unused.
+	 * @param int      $attachment_id The attachment that was created.
 	 *
-	 * @return array The attachment metadata.
+	 * @return string[] The attachment metadata.
 	 */
 	public function maybe_clear_cache( $metadata, $attachment_id ): array {
 		$mime_type = get_post_mime_type( $attachment_id );
@@ -173,7 +179,7 @@ class JoostBlog_PDF_Sitemap {
 		$handle = opendir( $dir );
 
 		while ( ( $file = readdir( $handle ) ) !== false ) {
-			if ( in_array( utf8_encode( $file ), [ '.', '..' ], true ) ) {
+			if ( in_array( $file, [ '.', '..' ], true ) ) {
 				continue;
 			}
 			// Only parse through numeric folders. Others will not have been created by WordPress.
