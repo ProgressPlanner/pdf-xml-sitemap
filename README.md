@@ -1,9 +1,9 @@
-![One XML sitemap for all your uploaded PDFs](https://repository-images.githubusercontent.com/575400437/66a1764f-ab7d-4b73-b002-841293f1bfa2)
-
 [![CS](https://github.com/jdevalk/pdf-xml-sitemap/actions/workflows/cs.yml/badge.svg)](https://github.com/jdevalk/pdf-xml-sitemap/actions/workflows/cs.yml)
 [![Lint](https://github.com/jdevalk/pdf-xml-sitemap/actions/workflows/lint.yml/badge.svg)](https://github.com/jdevalk/pdf-xml-sitemap/actions/workflows/lint.yml)
 [![Release Version](https://img.shields.io/github/release/jdevalk/pdf-xml-sitemap.svg)](https://github.com/jdevalk/pdf-xml-sitemap/releases/latest) 
 [![MIT License](https://img.shields.io/github/license/jdevalk/pdf-xml-sitemap.svg)](https://github.com/devalk/pdf-xml-sitemap/blob/main/LICENSE)
+
+![XML Sitemap for PDFs](/.wordpress-org/github_banner_xml_pdf_pp.png)
 
 # XML Sitemap for PDFs for Yoast SEO
 
