@@ -5,6 +5,7 @@ Plugin URI: https://joost.blog/plugins/pdf-xml-sitemap/
 Description: Creates an XML sitemap for PDFs, requires Yoast SEO.
 Version: 1.1
 Requires PHP: 7.4
+Requires Plugins: wordpress-seo
 Author: Joost de Valk
 Author URI: https://joost.blog/
 License: GPLv3
