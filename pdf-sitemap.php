@@ -1,13 +1,13 @@
 <?php
 /*
 Plugin Name: XML Sitemap for PDFs for Yoast SEO
-Plugin URI: https://joost.blog/plugins/pdf-xml-sitemap/
+Plugin URI: https://progressplanner.com/plugins/xml-sitemap-for-pdfs/
 Description: Creates an XML sitemap for PDFs, requires Yoast SEO.
 Version: 1.1
 Requires PHP: 7.4
 Requires Plugins: wordpress-seo
-Author: Joost de Valk
-Author URI: https://joost.blog/
+Author: Team Progress Planner
+Author URI: https://progressplanner.com/
 License: GPLv3
 License URI: http://www.opensource.org/licenses/GPL-3.0
 */

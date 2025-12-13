@@ -1,5 +1,5 @@
 === XML Sitemap for PDFs for Yoast SEO ===
-Contributors: joostdevalk
+Contributors: joostdevalk, aristath, filipi
 Tags: xml-sitemaps, seo, pdfs
 Requires at least: 6.7
 Tested up to: 6.9
