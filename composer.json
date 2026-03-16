@@ -1,12 +1,14 @@
 {
-  "name": "jdevalk/pdf-xml-sitemap",
-  "description": "Creates an XML sitemap for PDFs, requires Yoast SEO.",
+  "name": "progressplanner/pdf-xml-sitemap",
+  "description": "WordPress plugin that adds a PDF XML sitemap to Yoast SEO so search engines can discover uploaded PDFs more easily.",
   "keywords": [
-    "xml-sitemaps",
-    "seo",
-    "pdf"
+    "wordpress-plugin",
+    "yoast-seo",
+    "xml-sitemap",
+    "pdf-sitemap",
+    "seo"
   ],
-  "homepage": "https://joost.blog/plugins/pdf-sitemap/",
+  "homepage": "https://progressplanner.com/plugins/xml-sitemap-for-pdfs/",
   "license": "GPL-3.0-or-later",
   "authors": [
     {
@@ -17,9 +19,9 @@
   ],
   "type": "wordpress-plugin",
   "support": {
-    "issues": "https://github.com/jdevalk/pdf-xml-sitemap/issues",
+    "issues": "https://github.com/ProgressPlanner/pdf-xml-sitemap/issues",
     "forum": "https://wordpress.org/support/plugin/pdf-sitemap",
-    "source": "https://github.com/jdevalk/pdf-xml-sitemap"
+    "source": "https://github.com/ProgressPlanner/pdf-xml-sitemap"
   },
   "require": {
     "php": ">=7.4",
@@ -44,7 +46,7 @@
     "lint": [
       "@php ./vendor/php-parallel-lint/php-parallel-lint/parallel-lint . -e php --show-deprecated --exclude vendor --exclude node_modules --exclude .git"
     ],
-    "config-yoastcs" : [
+    "config-yoastcs": [
       "Dealerdirect\\Composer\\Plugin\\Installers\\PHPCodeSniffer\\Plugin::run",
       "@php ./vendor/squizlabs/php_codesniffer/bin/phpcs --config-set default_standard Yoast"
     ],

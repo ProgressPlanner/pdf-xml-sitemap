@@ -1,44 +1,36 @@
 ---
 name: Bug report
 about: Create a report to help us improve
-assignees: 
-  - jdevalk
-
 ---
 
-<!-- Please use this template when creating an issue. 
-- Please check the boxes after you've created your issue.
-- Please use the latest version of the plugin.-->
+<!-- Please use this template when creating an issue. -->
 
-* [ ] I've read and understood the [contribution guidelines](https://github.com/jdevalk/pdf-xml-sitemap/blob/main/.github/CONTRIBUTING.md).
-* [ ] I've searched for any related issues and avoided creating a duplicate issue.
+* [ ] I've read and understood the [contribution guidelines](https://github.com/ProgressPlanner/pdf-xml-sitemap/blob/main/.github/CONTRIBUTING.md).
+* [ ] I've searched for existing issues and confirmed this is not a duplicate.
+* [ ] I've tested with the latest version of WordPress, Yoast SEO, and this plugin.
 
-### Please give us a description of what happened
+### What happened?
 
-### To Reproduce
-#### Step-by-step reproduction instructions
+### Steps to reproduce
+
 1. 
 2. 
 3. 
 
-#### Expected results
-1. 
+### Expected result
 
-#### Actual results
-1. 
+### Actual result
 
+### Screenshots, recording, or code snippets
 
-### Screenshots, screen recording, code snippet
-If possible, please provide a screenshot, a screen recording or a code snippet which demonstrates the bug.
+If possible, include a screenshot, recording, or code snippet that helps explain the problem.
 
-### Technical info
+### Environment
 
-
-#### Used versions
-* Device you are using:
+* Device:
 * Operating system:
 * PHP version:
-* WordPress version: 
-* WordPress Theme:
-* Plugin version: 
-* Relevant plugins in case of a bug: 
+* WordPress version:
+* Theme:
+* Plugin version:
+* Relevant plugins:
