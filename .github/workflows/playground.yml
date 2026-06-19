@@ -1,0 +1,16 @@
+name: Playground Comment
+
+on:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - uses: mshick/add-pr-comment@v2
+        with:
+          message: |
+            **Test on Playground**
+            [Test this pull request on the Playground](https://playground.wordpress.net/?blueprint-url=https%3A%2F%2Fprogressplanner.com%2Fresearch%2Fblueprint-pdf-sitemap.php%3Frepo%3D${{ github.repository }}%26branch%3D${{ github.head_ref }}) or [download the zip](${{ github.server_url }}/${{ github.repository }}/archive/${{ github.sha }}.zip).
