@@ -96,12 +96,12 @@ class JoostBlog_PDF_Sitemap {
 			'PDFs',
 			'Manage PDFs',
 			[
-				'0' => 'PDF (%s)',
-				'1' => 'PDFs (%s)',
+				'0'        => 'PDF (%s)',
+				'1'        => 'PDFs (%s)',
 				'singular' => 'PDF (%s)',
-				'plural' => 'PDFs (%s)',
-				'context' => '',
-				'domain' => '',
+				'plural'   => 'PDFs (%s)',
+				'context'  => '',
+				'domain'   => '',
 			],
 		];
 
