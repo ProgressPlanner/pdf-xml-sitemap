@@ -1,12 +1,14 @@
 {
-  "name": "jdevalk/pdf-xml-sitemap",
-  "description": "Creates an XML sitemap for PDFs, requires Yoast SEO.",
+  "name": "progressplanner/pdf-xml-sitemap",
+  "description": "WordPress plugin that adds a PDF XML sitemap to Yoast SEO so search engines can discover uploaded PDFs more easily.",
   "keywords": [
-    "xml-sitemaps",
-    "seo",
-    "pdf"
+    "wordpress-plugin",
+    "yoast-seo",
+    "xml-sitemap",
+    "pdf-sitemap",
+    "seo"
   ],
-  "homepage": "https://joost.blog/plugins/pdf-sitemap/",
+  "homepage": "https://progressplanner.com/plugins/xml-sitemap-for-pdfs/",
   "license": "GPL-3.0-or-later",
   "authors": [
     {
@@ -17,19 +19,17 @@
   ],
   "type": "wordpress-plugin",
   "support": {
-    "issues": "https://github.com/jdevalk/pdf-xml-sitemap/issues",
+    "issues": "https://github.com/ProgressPlanner/pdf-xml-sitemap/issues",
     "forum": "https://wordpress.org/support/plugin/pdf-sitemap",
-    "source": "https://github.com/jdevalk/pdf-xml-sitemap"
+    "source": "https://github.com/ProgressPlanner/pdf-xml-sitemap"
   },
   "require": {
     "php": ">=7.4",
     "composer/installers": "^1.12.0"
   },
   "require-dev": {
-		"wp-coding-standards/wpcs": "^3.1",
-		"phpcompatibility/phpcompatibility-wp": "*",
-		"php-parallel-lint/php-parallel-lint": "^1.3",
-		"yoast/yoastcs": "^3.0"
+    "yoast/yoastcs": "^2.2.1",
+    "yoast/wp-test-utils": "^1.1.1"
   },
   "config": {
     "platform": {
@@ -46,15 +46,16 @@
     "lint": [
       "@php ./vendor/php-parallel-lint/php-parallel-lint/parallel-lint . -e php --show-deprecated --exclude vendor --exclude node_modules --exclude .git"
     ],
-		"check-cs": [
-			"@php ./vendor/bin/phpcs -s"
-		],
-		"fix-cs": [
-			"@php ./vendor/bin/phpcbf"
-		],
-    "phpstan": [
-			"@php ./vendor/bin/phpstan analyse --memory-limit=2048M"
-		],
+    "config-yoastcs": [
+      "Dealerdirect\\Composer\\Plugin\\Installers\\PHPCodeSniffer\\Plugin::run",
+      "@php ./vendor/squizlabs/php_codesniffer/bin/phpcs --config-set default_standard Yoast"
+    ],
+    "check-cs": [
+      "@php ./vendor/squizlabs/php_codesniffer/bin/phpcs --runtime-set testVersion 7.4-"
+    ],
+    "fix-cs": [
+      "@php ./vendor/squizlabs/php_codesniffer/bin/phpcbf"
+    ],
     "test": [
       "@php ./vendor/phpunit/phpunit/phpunit"
     ]
