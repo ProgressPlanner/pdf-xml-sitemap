@@ -17,7 +17,7 @@ License URI: http://www.opensource.org/licenses/GPL-3.0
  */
 class JoostBlog_PDF_Sitemap {
 
-	const TRANSIENT = 'joost-blog-pdf-sitemap';
+	public const TRANSIENT = 'joost-blog-pdf-sitemap';
 
 	/**
 	 * Holds the output.
@@ -26,6 +26,8 @@ class JoostBlog_PDF_Sitemap {
 
 	/**
 	 * Array of filetypes we're adding to the XML sitemap.
+	 *
+	 * @var string[]
 	 */
 	private array $filetypes = [ 'pdf' ];
 
@@ -36,6 +38,8 @@ class JoostBlog_PDF_Sitemap {
 
 	/**
 	 * Holds the PDFs we're going to output.
+	 *
+	 * @var array<array{url: string, mod: string}>
 	 */
 	private array $pdfs = [];
 
@@ -50,6 +54,8 @@ class JoostBlog_PDF_Sitemap {
 
 	/**
 	 * Registers the hooks for our little plugin.
+	 *
+	 * @return void
 	 */
 	public function register_hooks(): void {
 		if ( isset( $GLOBALS['wpseo_sitemaps'] ) && is_object( $GLOBALS['wpseo_sitemaps'] ) && method_exists( 'WPSEO_Sitemaps', 'register_sitemap' ) ) {
@@ -63,10 +69,10 @@ class JoostBlog_PDF_Sitemap {
 	/**
 	 * Makes sure we clear the PDF sitemap cache when a new PDF is uploaded.
 	 *
-	 * @param array $metadata      Attachment metadata. Unused.
-	 * @param int   $attachment_id The attachment that was created.
+	 * @param array<string, string|int|array> $metadata      Attachment metadata. Unused.
+	 * @param int                             $attachment_id The attachment that was created.
 	 *
-	 * @return array The attachment metadata.
+	 * @return array<string, string|int|array> The attachment metadata.
 	 */
 	public function maybe_clear_cache( $metadata, $attachment_id ): array {
 		$mime_type = get_post_mime_type( $attachment_id );
@@ -80,7 +86,9 @@ class JoostBlog_PDF_Sitemap {
 	/**
 	 * Adds the sitemap index link.
 	 *
-	 * @param array $links The existing index links.
+	 * @param array<array<string, string>> $links The existing index links.
+	 *
+	 * @return array<array<string, string>> The index links, including ours.
 	 */
 	public function add_index_link( array $links ): array {
 		$transient = get_transient( self::TRANSIENT );
@@ -100,6 +108,8 @@ class JoostBlog_PDF_Sitemap {
 
 	/**
 	 * Retrieves the sitemap and assigns it to output.
+	 *
+	 * @return void
 	 */
 	public function build_sitemap(): void {
 		$this->retrieve_from_cache_or_build();
@@ -114,6 +124,8 @@ class JoostBlog_PDF_Sitemap {
 
 	/**
 	 * Getter for stylesheet url.
+	 *
+	 * @return string The stylesheet line.
 	 */
 	public function get_stylesheet_line(): string {
 		return PHP_EOL . '<?xml-stylesheet type="text/xsl" href="' . esc_url( $this->get_xsl_url() ) . '"?>';
@@ -125,6 +137,8 @@ class JoostBlog_PDF_Sitemap {
 	 * When home_url and site_url are not the same, the home_url should be used.
 	 * This is because the XSL needs to be served from the same domain, protocol and port
 	 * as the XML file that is loading it.
+	 *
+	 * @return string The XSL URL.
 	 */
 	protected function get_xsl_url(): string {
 		return plugin_dir_url( __FILE__ ) . 'pdf-sitemap.xsl';
@@ -132,6 +146,8 @@ class JoostBlog_PDF_Sitemap {
 
 	/**
 	 * Retrieves from cache the generated sitemap or generates a sitemap if needed.
+	 *
+	 * @return void
 	 */
 	public function retrieve_from_cache_or_build(): void {
 		$transient = get_transient( self::TRANSIENT );
@@ -147,7 +163,7 @@ class JoostBlog_PDF_Sitemap {
 					'pdfs'     => $this->pdfs,
 					'last_mod' => $this->last_mod,
 				],
-				apply_filters( 'JoostBlog\WP\pdf_sitemap\cache_time', DAY_IN_SECONDS )
+				apply_filters( 'JoostBlog\WP\pdf_sitemap\cache_time', DAY_IN_SECONDS ),
 			);
 		}
 		$this->output .= $this->generate_output();
@@ -155,6 +171,8 @@ class JoostBlog_PDF_Sitemap {
 
 	/**
 	 * Kick off the script reading the dir provided in config.
+	 *
+	 * @return void
 	 */
 	private function read_dir(): void {
 		$dir = wp_get_upload_dir();
@@ -167,6 +185,8 @@ class JoostBlog_PDF_Sitemap {
 	 *
 	 * @param string $dir The directory to read.
 	 * @param string $url The base URL.
+	 *
+	 * @return void
 	 */
 	private function parse_dir( string $dir, string $url ): void {
 		$dir    = trailingslashit( $dir );
@@ -174,7 +194,7 @@ class JoostBlog_PDF_Sitemap {
 		$handle = opendir( $dir );
 
 		while ( ( $file = readdir( $handle ) ) !== false ) {
-			if ( in_array( utf8_encode( $file ), [ '.', '..' ], true ) ) {
+			if ( in_array( $file, [ '.', '..' ], true ) ) {
 				continue;
 			}
 			// Only parse through numeric folders. Others will not have been created by WordPress.
@@ -210,9 +230,11 @@ class JoostBlog_PDF_Sitemap {
 
 	/**
 	 * Output our XML sitemap.
+	 *
+	 * @return string The XML sitemap.
 	 */
 	private function generate_output(): string {
-		usort( $this->pdfs, fn( $a, $b ) => ( $b['mod'] <=> $a['mod'] ) );
+		usort( $this->pdfs, static fn( $a, $b ) => ( $b['mod'] <=> $a['mod'] ) );
 
 		$this->pdfs = apply_filters( 'JoostBlog\WP\pdf_sitemap\pdfs', $this->pdfs );
 
@@ -233,4 +255,4 @@ class JoostBlog_PDF_Sitemap {
 	}
 }
 
-$joost_blog_pdf = new JoostBlog_PDF_Sitemap();
+new JoostBlog_PDF_Sitemap();
