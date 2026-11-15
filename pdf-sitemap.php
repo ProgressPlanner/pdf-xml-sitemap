@@ -13,7 +13,7 @@ License URI: http://www.opensource.org/licenses/GPL-3.0
 */
 
 if ( ! defined( 'ABSPATH' ) ) {
-	exit;
+	exit();
 }
 
 /**
