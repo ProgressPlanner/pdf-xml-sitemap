@@ -12,6 +12,10 @@ License: GPLv3
 License URI: http://www.opensource.org/licenses/GPL-3.0
 */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 /**
  * Main plugin class.
  */
@@ -47,7 +51,7 @@ class JoostBlog_PDF_Sitemap {
 	 * Class constructor.
 	 */
 	public function __construct() {
-		$this->filetypes = apply_filters( 'JoostBlog\WP\pdf_sitemap\filetypes', $this->filetypes );
+		$this->filetypes = array_map( 'strtolower', apply_filters( 'JoostBlog\WP\pdf_sitemap\filetypes', $this->filetypes ) );
 
 		add_action( 'init', [ $this, 'register_hooks' ] );
 	}
@@ -64,6 +68,7 @@ class JoostBlog_PDF_Sitemap {
 
 		add_filter( 'wpseo_sitemap_index_links', [ $this, 'add_index_link' ] );
 		add_filter( 'wp_generate_attachment_metadata', [ $this, 'maybe_clear_cache' ], 10, 2 );
+		add_action( 'delete_attachment', [ $this, 'maybe_clear_attachment_cache' ] );
 	}
 
 	/**
@@ -75,12 +80,23 @@ class JoostBlog_PDF_Sitemap {
 	 * @return array<string, string|int|array> The attachment metadata.
 	 */
 	public function maybe_clear_cache( $metadata, $attachment_id ): array {
-		$mime_type = get_post_mime_type( $attachment_id );
-		if ( stripos( $mime_type, 'pdf' ) !== false ) {
-			delete_transient( self::TRANSIENT );
-		}
+		$this->maybe_clear_attachment_cache( $attachment_id );
 
 		return $metadata;
+	}
+
+	/**
+	 * Clears the cache when a PDF attachment is uploaded or deleted.
+	 *
+	 * @param int $attachment_id The attachment being changed.
+	 *
+	 * @return void
+	 */
+	public function maybe_clear_attachment_cache( int $attachment_id ): void {
+		$mime_type = get_post_mime_type( $attachment_id );
+		if ( $mime_type && stripos( $mime_type, 'pdf' ) !== false ) {
+			delete_transient( self::TRANSIENT );
+		}
 	}
 
 	/**
@@ -99,7 +115,7 @@ class JoostBlog_PDF_Sitemap {
 		}
 
 		$links[] = [
-			'loc'     => trailingslashit( get_site_url() ) . 'pdf_files-sitemap.xml',
+			'loc'     => home_url( '/pdf_files-sitemap.xml' ),
 			'lastmod' => $last_mod,
 		];
 
@@ -150,12 +166,17 @@ class JoostBlog_PDF_Sitemap {
 	 * @return void
 	 */
 	public function retrieve_from_cache_or_build(): void {
+		$this->output   = '';
+		$this->pdfs     = [];
+		$this->last_mod = '';
+
 		$transient = get_transient( self::TRANSIENT );
-		if ( $transient ) {
-			$this->pdfs   = $transient['pdfs'];
-			$this->output = '<!-- Served from cache -->' . PHP_EOL;
+		if ( $transient !== false ) {
+			$this->pdfs     = $transient['pdfs'];
+			$this->last_mod = $transient['last_mod'];
+			$this->output   = '<!-- Served from cache -->' . PHP_EOL;
 		}
-		if ( empty( $this->pdfs ) ) {
+		else {
 			$this->read_dir();
 			set_transient(
 				self::TRANSIENT,
@@ -189,9 +210,15 @@ class JoostBlog_PDF_Sitemap {
 	 * @return void
 	 */
 	private function parse_dir( string $dir, string $url ): void {
-		$dir    = trailingslashit( $dir );
-		$url    = trailingslashit( $url );
-		$handle = opendir( $dir );
+		$dir = trailingslashit( $dir );
+		$url = trailingslashit( $url );
+
+		// Missing or unreadable directories must not print warnings into the XML.
+		// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+		$handle = @opendir( $dir );
+		if ( $handle === false ) {
+			return;
+		}
 
 		while ( ( $file = readdir( $handle ) ) !== false ) {
 			if ( in_array( $file, [ '.', '..' ], true ) ) {
@@ -203,8 +230,8 @@ class JoostBlog_PDF_Sitemap {
 			}
 
 			// Check whether the file has on of the extensions allowed for this XML sitemap.
-			$extension = pathinfo( $dir . $file, PATHINFO_EXTENSION );
-			if ( empty( $extension ) || ! in_array( $extension, $this->filetypes, true ) ) {
+			$extension = strtolower( pathinfo( $dir . $file, PATHINFO_EXTENSION ) );
+			if ( empty( $extension ) || ! in_array( $extension, $this->filetypes, true ) || ! is_file( $dir . $file ) ) {
 				continue;
 			}
 
@@ -244,8 +271,8 @@ class JoostBlog_PDF_Sitemap {
 		foreach ( $this->pdfs as $pdf ) {
 			// Start creating the output.
 			$output .= '<url>' . PHP_EOL;
-			$output .= "\t" . '<loc>' . $pdf['url'] . '</loc>' . PHP_EOL;
-			$output .= "\t" . '<lastmod>' . $pdf['mod'] . '</lastmod>' . PHP_EOL;
+			$output .= "\t" . '<loc>' . esc_xml( esc_url( $pdf['url'], [ 'http', 'https' ] ) ) . '</loc>' . PHP_EOL;
+			$output .= "\t" . '<lastmod>' . esc_xml( $pdf['mod'] ) . '</lastmod>' . PHP_EOL;
 			$output .= '</url>' . PHP_EOL;
 		}
 

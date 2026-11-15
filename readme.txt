@@ -56,13 +56,19 @@ This plugin requires [Yoast SEO](https://yoast.com/wordpress/plugins/seo/) and i
 
 After activation, visit your site's `sitemap_index.xml`. You should see a link to `pdf_files-sitemap.xml`.
 
+= Which PDFs does this plugin include? =
+
+The plugin scans the uploads root and its numeric subfolders, including WordPress year/month folders, for `.pdf` files (case-insensitive). Files do not need to be registered in the media library. This intentionally includes unattached and FTP-uploaded PDFs, as well as PDFs attached to draft, private, password-protected, or scheduled posts.
+
+The sitemap makes these files easier to discover. A parent post's visibility does not exclude its PDFs from this sitemap. Keep confidential files outside the scanned folders and protect them with access controls.
+
 = Will this include PDFs uploaded through forms? =
 
-Not always. The plugin scans WordPress-style numeric uploads folders, so PDFs stored outside that structure may not be included.
+PDFs uploaded through forms are included if they are stored in the uploads root or numeric subfolders. Non-numeric subfolders are not scanned.
 
 = Does this plugin cache its output? =
 
-Yes. The plugin scans the uploads folder once per day and stores the result in a transient. When you upload a new PDF file, that cache is cleared automatically.
+Yes, the plugin caches the file list for one day, including when no PDFs are found. Uploading or permanently deleting a PDF through WordPress clears the cache automatically. Direct filesystem changes are picked up after the cache expires.
 
 = Does this plugin work with SEO plugins other than Yoast SEO? =
 
