@@ -51,7 +51,7 @@ class JoostBlog_PDF_Sitemap {
 	 * Class constructor.
 	 */
 	public function __construct() {
-		$this->filetypes = array_map( 'strtolower', apply_filters( 'JoostBlog\WP\pdf_sitemap\filetypes', $this->filetypes ) );
+		$this->filetypes = array_map( 'strtolower', (array) apply_filters( 'JoostBlog\WP\pdf_sitemap\filetypes', $this->filetypes ) );
 
 		add_action( 'init', [ $this, 'register_hooks' ] );
 	}
@@ -115,11 +115,32 @@ class JoostBlog_PDF_Sitemap {
 		}
 
 		$links[] = [
-			'loc'     => home_url( '/pdf_files-sitemap.xml' ),
+			'loc'     => $this->get_sitemap_url(),
 			'lastmod' => $last_mod,
 		];
 
 		return $links;
+	}
+
+	/**
+	 * Retrieves the URL of the PDF sitemap.
+	 *
+	 * Uses Yoast SEO's own router when available, so the URL respects index.php permalinks
+	 * and the `wpseo_sitemaps_base_url` filter. Falls back to the home URL otherwise.
+	 *
+	 * @return string The PDF sitemap URL.
+	 */
+	public function get_sitemap_url(): string {
+		$page = 'pdf_files-sitemap.xml';
+
+		if ( is_callable( [ 'WPSEO_Sitemaps_Router', 'get_base_url' ] ) ) {
+			$url = WPSEO_Sitemaps_Router::get_base_url( $page );
+			if ( is_string( $url ) && $url !== '' ) {
+				return $url;
+			}
+		}
+
+		return home_url( '/' . $page );
 	}
 
 	/**
@@ -150,9 +171,9 @@ class JoostBlog_PDF_Sitemap {
 	/**
 	 * Retrieves the XSL URL that should be used in the current environment.
 	 *
-	 * When home_url and site_url are not the same, the home_url should be used.
-	 * This is because the XSL needs to be served from the same domain, protocol and port
-	 * as the XML file that is loading it.
+	 * The XSL is served from the plugin directory. Browsers only apply it when it is served
+	 * from the same domain, protocol and port as the XML file, so sites whose home and
+	 * site URLs are on different domains will show the sitemap without styling.
 	 *
 	 * @return string The XSL URL.
 	 */
