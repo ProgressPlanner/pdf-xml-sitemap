@@ -8,6 +8,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: wordpress-org-pdf-sitemap
+  cancel-in-progress: false
+
 jobs:
   tag:
     name: New tag

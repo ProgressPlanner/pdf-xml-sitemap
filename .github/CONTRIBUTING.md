@@ -33,6 +33,12 @@ Community contributions are welcome.
 - Reference the related issue when possible.
 - Update documentation when behavior changes.
 
+## Publishing readme updates
+
+After merging a readme-only change into `main`, run **Sync readme.txt to WordPress.org** from GitHub Actions on `main`. It updates only `readme.txt` in SVN trunk and the existing stable tag, using the same SVN secrets as releases. It refuses to change the published stable version and shares a concurrency group with release deployments. No new plugin release is needed.
+
+For a read-only preview, run `DRY_RUN=true bash .github/scripts/sync-readme.sh`.
+
 ## Useful links
 
 - [Open issues](https://github.com/ProgressPlanner/pdf-xml-sitemap/issues)
