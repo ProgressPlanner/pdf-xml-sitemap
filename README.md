@@ -109,6 +109,15 @@ The plugin includes a few filters for advanced use cases:
 
 ## Changelog
 
+### 1.2
+
+- Added a PDFs filter to the WordPress media library.
+- Fixed caching when no PDFs are found and cleared the cache when PDF attachments are deleted.
+- Improved sitemap URLs for WordPress subdirectory and index.php permalink setups.
+- Added support for uppercase PDF extensions and handled missing or unreadable upload directories.
+- Escaped XML output and prevented direct access to the plugin file.
+- Clarified that filesystem discovery includes PDFs regardless of their parent post’s visibility.
+
 ### 1.1
 
 - Fixed a bug that caused the cache not to be used.
