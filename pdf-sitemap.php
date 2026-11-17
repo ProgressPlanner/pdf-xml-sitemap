@@ -62,13 +62,14 @@ class JoostBlog_PDF_Sitemap {
 	 * @return void
 	 */
 	public function register_hooks(): void {
-		if ( isset( $GLOBALS['wpseo_sitemaps'] ) && is_object( $GLOBALS['wpseo_sitemaps'] ) && method_exists( 'WPSEO_Sitemaps', 'register_sitemap' ) ) {
+		if ( isset( $GLOBALS['wpseo_sitemaps'] ) && is_a( $GLOBALS['wpseo_sitemaps'], 'WPSEO_Sitemaps' ) && method_exists( 'WPSEO_Sitemaps', 'register_sitemap' ) ) {
 			$GLOBALS['wpseo_sitemaps']->register_sitemap( 'pdf_files', [ $this, 'build_sitemap' ] );
 		}
 
 		add_filter( 'wpseo_sitemap_index_links', [ $this, 'add_index_link' ] );
 		add_filter( 'wp_generate_attachment_metadata', [ $this, 'maybe_clear_cache' ], 10, 2 );
 		add_action( 'delete_attachment', [ $this, 'maybe_clear_attachment_cache' ] );
+		add_filter( 'post_mime_types', [ $this, 'filter_post_mime_types' ] );
 	}
 
 	/**
@@ -97,6 +98,30 @@ class JoostBlog_PDF_Sitemap {
 		if ( $mime_type && stripos( $mime_type, 'pdf' ) !== false ) {
 			delete_transient( self::TRANSIENT );
 		}
+	}
+
+	/**
+	 * Adds the PDF post mime type.
+	 *
+	 * @param array<string, array<int, string|array<string|int, string>>> $post_mime_types The existing post mime types.
+	 *
+	 * @return array<string, array<int, string|array<string|int, string>>> The existing post mime types.
+	 */
+	public function filter_post_mime_types( $post_mime_types ) {
+		$post_mime_types['application/pdf'] = [
+			'PDFs',
+			'Manage PDFs',
+			[
+				'0'        => 'PDF (%s)',
+				'1'        => 'PDFs (%s)',
+				'singular' => 'PDF (%s)',
+				'plural'   => 'PDFs (%s)',
+				'context'  => '',
+				'domain'   => '',
+			],
+		];
+
+		return $post_mime_types;
 	}
 
 	/**
