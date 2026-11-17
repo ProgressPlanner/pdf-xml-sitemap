@@ -12,6 +12,10 @@ License: GPLv3
 License URI: http://www.opensource.org/licenses/GPL-3.0
 */
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit();
+}
+
 /**
  * Main plugin class.
  */
@@ -39,7 +43,7 @@ class JoostBlog_PDF_Sitemap {
 	/**
 	 * Holds the PDFs we're going to output.
 	 *
-	 * @var array<string, string>
+	 * @var array<array{url: string, mod: string}>
 	 */
 	private array $pdfs = [];
 
@@ -47,7 +51,7 @@ class JoostBlog_PDF_Sitemap {
 	 * Class constructor.
 	 */
 	public function __construct() {
-		$this->filetypes = apply_filters( 'JoostBlog\WP\pdf_sitemap\filetypes', $this->filetypes );
+		$this->filetypes = array_map( 'strtolower', (array) apply_filters( 'JoostBlog\WP\pdf_sitemap\filetypes', $this->filetypes ) );
 
 		add_action( 'init', [ $this, 'register_hooks' ] );
 	}
@@ -64,32 +68,44 @@ class JoostBlog_PDF_Sitemap {
 
 		add_filter( 'wpseo_sitemap_index_links', [ $this, 'add_index_link' ] );
 		add_filter( 'wp_generate_attachment_metadata', [ $this, 'maybe_clear_cache' ], 10, 2 );
+		add_action( 'delete_attachment', [ $this, 'maybe_clear_attachment_cache' ] );
 		add_filter( 'post_mime_types', [ $this, 'filter_post_mime_types' ] );
 	}
 
 	/**
 	 * Makes sure we clear the PDF sitemap cache when a new PDF is uploaded.
 	 *
-	 * @param string[] $metadata      Attachment metadata. Unused.
-	 * @param int      $attachment_id The attachment that was created.
+	 * @param array<string, string|int|array> $metadata      Attachment metadata. Unused.
+	 * @param int                             $attachment_id The attachment that was created.
 	 *
-	 * @return string[] The attachment metadata.
+	 * @return array<string, string|int|array> The attachment metadata.
 	 */
 	public function maybe_clear_cache( $metadata, $attachment_id ): array {
-		$mime_type = get_post_mime_type( $attachment_id );
-		if ( stripos( $mime_type, 'pdf' ) !== false ) {
-			delete_transient( self::TRANSIENT );
-		}
+		$this->maybe_clear_attachment_cache( $attachment_id );
 
 		return $metadata;
 	}
 
 	/**
+	 * Clears the cache when a PDF attachment is uploaded or deleted.
+	 *
+	 * @param int $attachment_id The attachment being changed.
+	 *
+	 * @return void
+	 */
+	public function maybe_clear_attachment_cache( int $attachment_id ): void {
+		$mime_type = get_post_mime_type( $attachment_id );
+		if ( $mime_type && stripos( $mime_type, 'pdf' ) !== false ) {
+			delete_transient( self::TRANSIENT );
+		}
+	}
+
+	/**
 	 * Adds the PDF post mime type.
 	 *
-	 * @param string[] $post_mime_types The existing post mime types.
+	 * @param array<string, array<int, string|array<string|int, string>>> $post_mime_types The existing post mime types.
 	 *
-	 * @return string[] The existing post mime types.
+	 * @return array<string, array<int, string|array<string|int, string>>> The existing post mime types.
 	 */
 	public function filter_post_mime_types( $post_mime_types ) {
 		$post_mime_types['application/pdf'] = [
@@ -111,9 +127,9 @@ class JoostBlog_PDF_Sitemap {
 	/**
 	 * Adds the sitemap index link.
 	 *
-	 * @param string[] $links The existing index links.
+	 * @param array<array<string, string>> $links The existing index links.
 	 *
-	 * @return string[] The existing index links.
+	 * @return array<array<string, string>> The index links, including ours.
 	 */
 	public function add_index_link( array $links ): array {
 		$transient = get_transient( self::TRANSIENT );
@@ -124,11 +140,32 @@ class JoostBlog_PDF_Sitemap {
 		}
 
 		$links[] = [
-			'loc'     => trailingslashit( get_site_url() ) . 'pdf_files-sitemap.xml',
+			'loc'     => $this->get_sitemap_url(),
 			'lastmod' => $last_mod,
 		];
 
 		return $links;
+	}
+
+	/**
+	 * Retrieves the URL of the PDF sitemap.
+	 *
+	 * Uses Yoast SEO's own router when available, so the URL respects index.php permalinks
+	 * and the `wpseo_sitemaps_base_url` filter. Falls back to the home URL otherwise.
+	 *
+	 * @return string The PDF sitemap URL.
+	 */
+	public function get_sitemap_url(): string {
+		$page = 'pdf_files-sitemap.xml';
+
+		if ( is_callable( [ 'WPSEO_Sitemaps_Router', 'get_base_url' ] ) ) {
+			$url = WPSEO_Sitemaps_Router::get_base_url( $page );
+			if ( is_string( $url ) && $url !== '' ) {
+				return $url;
+			}
+		}
+
+		return home_url( '/' . $page );
 	}
 
 	/**
@@ -150,7 +187,7 @@ class JoostBlog_PDF_Sitemap {
 	/**
 	 * Getter for stylesheet url.
 	 *
-	 * @return string The stylesheet URL.
+	 * @return string The stylesheet line.
 	 */
 	public function get_stylesheet_line(): string {
 		return PHP_EOL . '<?xml-stylesheet type="text/xsl" href="' . esc_url( $this->get_xsl_url() ) . '"?>';
@@ -159,9 +196,9 @@ class JoostBlog_PDF_Sitemap {
 	/**
 	 * Retrieves the XSL URL that should be used in the current environment.
 	 *
-	 * When home_url and site_url are not the same, the home_url should be used.
-	 * This is because the XSL needs to be served from the same domain, protocol and port
-	 * as the XML file that is loading it.
+	 * The XSL is served from the plugin directory. Browsers only apply it when it is served
+	 * from the same domain, protocol and port as the XML file, so sites whose home and
+	 * site URLs are on different domains will show the sitemap without styling.
 	 *
 	 * @return string The XSL URL.
 	 */
@@ -175,12 +212,17 @@ class JoostBlog_PDF_Sitemap {
 	 * @return void
 	 */
 	public function retrieve_from_cache_or_build(): void {
+		$this->output   = '';
+		$this->pdfs     = [];
+		$this->last_mod = '';
+
 		$transient = get_transient( self::TRANSIENT );
-		if ( $transient ) {
-			$this->pdfs   = $transient['pdfs'];
-			$this->output = '<!-- Served from cache -->' . PHP_EOL;
+		if ( $transient !== false ) {
+			$this->pdfs     = $transient['pdfs'];
+			$this->last_mod = $transient['last_mod'];
+			$this->output   = '<!-- Served from cache -->' . PHP_EOL;
 		}
-		if ( empty( $this->pdfs ) ) {
+		else {
 			$this->read_dir();
 			set_transient(
 				self::TRANSIENT,
@@ -188,7 +230,7 @@ class JoostBlog_PDF_Sitemap {
 					'pdfs'     => $this->pdfs,
 					'last_mod' => $this->last_mod,
 				],
-				apply_filters( 'JoostBlog\WP\pdf_sitemap\cache_time', DAY_IN_SECONDS )
+				apply_filters( 'JoostBlog\WP\pdf_sitemap\cache_time', DAY_IN_SECONDS ),
 			);
 		}
 		$this->output .= $this->generate_output();
@@ -214,9 +256,15 @@ class JoostBlog_PDF_Sitemap {
 	 * @return void
 	 */
 	private function parse_dir( string $dir, string $url ): void {
-		$dir    = trailingslashit( $dir );
-		$url    = trailingslashit( $url );
-		$handle = opendir( $dir );
+		$dir = trailingslashit( $dir );
+		$url = trailingslashit( $url );
+
+		// Missing or unreadable directories must not print warnings into the XML.
+		// phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+		$handle = @opendir( $dir );
+		if ( $handle === false ) {
+			return;
+		}
 
 		while ( ( $file = readdir( $handle ) ) !== false ) {
 			if ( in_array( $file, [ '.', '..' ], true ) ) {
@@ -228,8 +276,8 @@ class JoostBlog_PDF_Sitemap {
 			}
 
 			// Check whether the file has on of the extensions allowed for this XML sitemap.
-			$extension = pathinfo( $dir . $file, PATHINFO_EXTENSION );
-			if ( empty( $extension ) || ! in_array( $extension, $this->filetypes, true ) ) {
+			$extension = strtolower( pathinfo( $dir . $file, PATHINFO_EXTENSION ) );
+			if ( empty( $extension ) || ! in_array( $extension, $this->filetypes, true ) || ! is_file( $dir . $file ) ) {
 				continue;
 			}
 
@@ -269,8 +317,8 @@ class JoostBlog_PDF_Sitemap {
 		foreach ( $this->pdfs as $pdf ) {
 			// Start creating the output.
 			$output .= '<url>' . PHP_EOL;
-			$output .= "\t" . '<loc>' . $pdf['url'] . '</loc>' . PHP_EOL;
-			$output .= "\t" . '<lastmod>' . $pdf['mod'] . '</lastmod>' . PHP_EOL;
+			$output .= "\t" . '<loc>' . esc_xml( esc_url( $pdf['url'], [ 'http', 'https' ] ) ) . '</loc>' . PHP_EOL;
+			$output .= "\t" . '<lastmod>' . esc_xml( $pdf['mod'] ) . '</lastmod>' . PHP_EOL;
 			$output .= '</url>' . PHP_EOL;
 		}
 

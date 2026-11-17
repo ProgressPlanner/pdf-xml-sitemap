@@ -1,7 +1,12 @@
 name: Playground Comment
 
 on:
-  pull_request:
+  # Only posts metadata; never checks out or executes pull request code.
+  pull_request_target:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
 
 jobs:
   test:
@@ -9,8 +14,46 @@ jobs:
     permissions:
       pull-requests: write
     steps:
-      - uses: mshick/add-pr-comment@v2
+      - name: Build preview links
+        id: preview
+        env:
+          PR_REPOSITORY: ${{ github.event.pull_request.head.repo.full_name }}
+          PR_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          python3 - <<'PY'
+          import base64
+          import json
+          import os
+
+          repository = os.environ['PR_REPOSITORY']
+          sha = os.environ['PR_SHA']
+          blueprint = {
+              'landingPage': '/wp-admin/upload.php?mode=list',
+              'features': {'networking': True},
+              'login': True,
+              'plugins': ['wordpress-seo'],
+              'steps': [{
+                  'step': 'installPlugin',
+                  'pluginData': {
+                      'resource': 'git:directory',
+                      'url': f'https://github.com/{repository}',
+                      'ref': sha,
+                      'refType': 'commit',
+                  },
+                  'options': {
+                      'activate': True,
+                      'targetFolderName': 'pdf-sitemap',
+                  },
+              }],
+          }
+          encoded = base64.b64encode(json.dumps(blueprint).encode()).decode()
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
+              output.write(f'playground=https://playground.wordpress.net/#{encoded}\n')
+              output.write(f'zip=https://github.com/{repository}/archive/{sha}.zip\n')
+          PY
+
+      - uses: mshick/add-pr-comment@c96a9caed2a8cc0ed55e1f105725e383d63569d0 # v2
         with:
           message: |
             **Test on Playground**
-            [Test this pull request on the Playground](https://playground.wordpress.net/?blueprint-url=https%3A%2F%2Fprogressplanner.com%2Fresearch%2Fblueprint-pdf-sitemap.php%3Frepo%3D${{ github.repository }}%26branch%3D${{ github.head_ref }}) or [download the zip](${{ github.server_url }}/${{ github.repository }}/archive/${{ github.sha }}.zip).
+            [Test this pull request on the Playground](${{ steps.preview.outputs.playground }}) or [download the zip](${{ steps.preview.outputs.zip }}).
