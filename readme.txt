@@ -2,9 +2,9 @@
 Contributors: joostdevalk, aristath, filipi
 Tags: xml sitemap, pdf sitemap, yoast seo, pdf seo, seo
 Requires at least: 6.7
-Tested up to: 6.9
+Tested up to: 7.1
 Requires PHP: 7.4
-Stable Tag: 1.1
+Stable Tag: 1.2
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -92,6 +92,15 @@ Yes. The plugin includes these filters:
 2. Example of the PDF XML sitemap linked in the sitemap index.
 
 == Changelog ==
+
+= 1.2 =
+
+* Added a PDFs filter to the WordPress media library.
+* Fixed caching when no PDFs are found and cleared the cache when PDF attachments are deleted.
+* Improved sitemap URLs for WordPress subdirectory and index.php permalink setups.
+* Added support for uppercase PDF extensions and handled missing or unreadable upload directories.
+* Escaped XML output and prevented direct access to the plugin file.
+* Clarified that filesystem discovery includes PDFs regardless of their parent post’s visibility.
 
 = 1.1 =
 
