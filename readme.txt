@@ -8,7 +8,7 @@ Stable Tag: 1.2
 License: GPLv3
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
-Automatically add PDF files from your WordPress uploads directory to Yoast SEO's XML sitemap index so search engines can discover and crawl them more easily.
+Add PDFs from your WordPress uploads folder to Yoast SEO's XML sitemap so search engines can discover them.
 
 == Description ==
 
