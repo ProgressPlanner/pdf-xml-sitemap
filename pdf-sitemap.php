@@ -4,6 +4,7 @@ Plugin Name: XML Sitemap for PDFs for Yoast SEO
 Plugin URI: https://progressplanner.com/plugins/xml-sitemap-for-pdfs/
 Description: Creates an XML sitemap for PDFs, requires Yoast SEO.
 Version: 1.2
+Requires at least: 6.7
 Requires PHP: 7.4
 Requires Plugins: wordpress-seo
 Author: Team Progress Planner
