@@ -1,0 +1,17 @@
+includes:
+  # Mostly runtime guards for Yoast SEO being absent or outdated: the stubs
+  # below make PHPStan think those checks are always true.
+  - phpstan-baseline.neon
+
+parameters:
+  level: 6
+  paths:
+    - .
+  excludePaths:
+    analyse:
+      - vendor
+      - tests
+      - .cache
+  scanFiles:
+    # Yoast SEO is not a Composer dependency, so describe the classes we call.
+    - tests/stubs/yoast-seo.php

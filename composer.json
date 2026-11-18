@@ -30,7 +30,10 @@
   "require-dev": {
     "squizlabs/php_codesniffer": "^3.13.6",
     "yoast/yoastcs": "^3.4.2",
-    "yoast/wp-test-utils": "^1.1.1"
+    "yoast/wp-test-utils": "^1.1.1",
+    "phpstan/phpstan": "^2.1",
+    "szepeviktor/phpstan-wordpress": "^2.0",
+    "phpstan/extension-installer": "^1.4"
   },
   "config": {
     "platform": {
@@ -38,7 +41,8 @@
     },
     "allow-plugins": {
       "dealerdirect/phpcodesniffer-composer-installer": true,
-      "composer/installers": true
+      "composer/installers": true,
+      "phpstan/extension-installer": true
     }
   },
   "minimum-stability": "dev",
@@ -59,6 +63,9 @@
     ],
     "test": [
       "@php ./vendor/phpunit/phpunit/phpunit"
+    ],
+    "phpstan": [
+      "@php ./vendor/bin/phpstan analyse --memory-limit=2048M"
     ]
   }
 }
