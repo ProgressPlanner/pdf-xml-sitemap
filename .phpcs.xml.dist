@@ -79,6 +79,21 @@
 		<exclude-pattern>*/deprecated/deprecated-classes\.php$</exclude-pattern>
 	</rule>
 
+	<!-- The test bootstrap declares a function, but is not a functions file. -->
+	<rule ref="Yoast.Files.FileName.InvalidFunctionsFileName">
+		<exclude-pattern>/tests/bootstrap\.php$</exclude-pattern>
+	</rule>
+
+	<!-- The Yoast SEO stand-ins hold several classes in one file. -->
+	<rule ref="Yoast.Files.FileName.InvalidClassFileName">
+		<exclude-pattern>/tests/stubs/*\.php$</exclude-pattern>
+	</rule>
+
+	<!-- The plugin prefix is not a namespace, so the sniff has no prefix to accept for the tests. -->
+	<rule ref="Yoast.NamingConventions.NamespaceName.Invalid">
+		<exclude-pattern>/tests/*\.php$</exclude-pattern>
+	</rule>
+
 	<!--
 	#############################################################################
 	TEMPORARY ADJUSTMENTS

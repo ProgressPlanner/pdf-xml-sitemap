@@ -1,0 +1,66 @@
+name: 'WordPress.org Plugin Check'
+
+on:
+  pull_request:
+  # Allow manually triggering the workflow.
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Cancels all previous workflow runs for the same branch that have not yet completed.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # The WordPress.org slug, which differs from the repository name.
+  PLUGIN_SLUG: pdf-sitemap
+
+jobs:
+  test:
+    name: 'WordPress.org Plugin Check'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
+        with:
+          php-version: '8.3'
+          coverage: none
+          # Use a release archive instead of the mutable latest-build URL.
+          tools: wp-cli:2.12.0
+        env:
+          fail-fast: true
+
+      # setup-php stores the ephemeral Actions token in ~/.composer/auth.json
+      # as a github-oauth credential. Composer rejects that token whenever it
+      # happens to contain a character its validator dislikes ("Your github
+      # oauth token for github.com contains invalid characters",
+      # composer#12076), so this step failed on roughly half of all runs
+      # depending on the token minted for that run.
+      #
+      # dist-archive-command is a PUBLIC package and needs no auth, so the
+      # fix is to delete the stored credential before installing.
+      #
+      # Pinned to v3.1.0 deliberately: newest release accepting wp-cli ^2.
+      # v3.2.x requires ^2.13, which has no stable release (latest is 2.12.0).
+      - name: Install dist-archive-command
+        run: |
+          rm -f "$(composer config --global home 2>/dev/null)/auth.json"
+          wp package install wp-cli/dist-archive-command:v3.1.0
+
+      # Build what WordPress.org would get: .distignore applied, and the
+      # folder named after the WordPress.org slug rather than the repository.
+      - name: Build plugin
+        run: |
+          wp dist-archive . "./${PLUGIN_SLUG}.zip" --plugin-dirname="${PLUGIN_SLUG}"
+          mkdir plugin-check-build
+          unzip "${PLUGIN_SLUG}.zip" -d plugin-check-build
+
+      - name: Run plugin check
+        uses: wordpress/plugin-check-action@10857da14b6c2246d15402b3e69f777edcf8c12e # v1.1.9
+        with:
+          build-dir: './plugin-check-build/${{ env.PLUGIN_SLUG }}'

@@ -1,0 +1,43 @@
+name: PHPStan
+
+on:
+  # Run on pushes to select branches and on all pull requests.
+  push:
+    branches:
+      - main
+      - trunk
+      - 'release/**'
+      - 'hotfix/[0-9]+.[0-9]+*'
+  pull_request:
+  # Allow manually triggering the workflow.
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Cancels all previous workflow runs for the same branch that have not yet completed.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  phpstan:
+    name: Static Analysis
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
+        with:
+          php-version: 'latest'
+          coverage: none
+
+      - name: Install PHP dependencies
+        uses: ramsey/composer-install@a8d0d959dab41457692a5e2041bd9b757a119e3f # 3.2.1
+        with:
+          composer-options: '--prefer-dist --no-scripts'
+
+      - name: PHPStan
+        run: composer phpstan

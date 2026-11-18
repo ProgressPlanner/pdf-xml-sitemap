@@ -1,0 +1,43 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Call to function is_string\(\) with string will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: pdf-sitemap.php
+
+		-
+			message: '#^Call to function method_exists\(\) with ''WPSEO_Sitemaps'' and ''register_sitemap'' will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: pdf-sitemap.php
+
+		-
+			message: '#^Call to function method_exists\(\) with ''WPSEO_Sitemaps'' and ''set_sitemap'' will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: pdf-sitemap.php
+
+		-
+			message: '#^Call to function method_exists\(\) with ''WPSEO_Sitemaps…'' and ''set_stylesheet'' will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: pdf-sitemap.php
+
+		-
+			message: '#^If condition is always true\.$#'
+			identifier: if.alwaysTrue
+			count: 1
+			path: pdf-sitemap.php
+
+		-
+			message: '#^Method JoostBlog_PDF_Sitemap\:\:maybe_clear_cache\(\) has parameter \$metadata with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: pdf-sitemap.php
+
+		-
+			message: '#^Method JoostBlog_PDF_Sitemap\:\:maybe_clear_cache\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: pdf-sitemap.php
