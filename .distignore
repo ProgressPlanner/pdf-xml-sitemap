@@ -11,3 +11,4 @@
 phpunit.xml.dist
 phpstan.neon.dist
 phpstan-baseline.neon
+.gitattributes
