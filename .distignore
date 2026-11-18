@@ -7,3 +7,7 @@
 .phpcs.xml.dist
 .distignore
 .gitignore
+/tests
+phpunit.xml.dist
+phpstan.neon.dist
+phpstan-baseline.neon
